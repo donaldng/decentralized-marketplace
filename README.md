@@ -1,3 +1,3 @@
 # Decentralized Marketplace
 
-POC project, trying to create truly decentralized online market place with Smart Contract.
+POC project - decentralized online marketplace with smart contract

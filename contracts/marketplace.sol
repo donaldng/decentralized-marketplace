@@ -7,6 +7,10 @@ contract Marketplace {
     address sellerAddress;
     address ownerAddress;
 
+    event Transfer(address _address, uint256 _sent);
+    event Refund(address _address, uint256 _overpaidAmt);
+    event Status(bool _completed, uint256 _remainingAmt);
+
     function Marketplace(address addr, uint256 price) public {
         // buyer initiate contract to buy from seller.
         require(price > 0);
@@ -24,18 +28,27 @@ contract Marketplace {
     }
 
     function transfer() public payable {
+        // transfer fund to smart contract
+
         require(msg.value > 0);
         require(!completed);
-
+        
+        Transfer(msg.sender, msg.value);
+        
         checkContractStatus();
     }
     
     function checkContractStatus() private {
         // check if contract is completed
+        uint256 remainingAmt = priceTag - this.balance;
+
         if (this.balance >= priceTag) {
             completed = true;
+            remainingAmt = 0;
             checkIfOverpaid();
         }
+
+        Status(completed, remainingAmt);
     }
 
     function getBalance() public constant returns (uint256) {
@@ -47,6 +60,8 @@ contract Marketplace {
         if (this.balance > priceTag) {
             uint256 overpaidAmt = this.balance - priceTag;
             msg.sender.transfer(overpaidAmt);
+
+            Refund(msg.sender, overpaidAmt);
         }
     }
 
